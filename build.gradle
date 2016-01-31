@@ -11,8 +11,13 @@
 apply plugin: 'java'
 
 jar {
+    
     manifest {
         attributes 'Main-Class': 'pingy.PingServer'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
