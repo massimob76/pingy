@@ -1,22 +1,27 @@
 package pingy;
 
 import com.sun.net.httpserver.HttpServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class PingServer {
 
-    private static final int PORT = 8000;
+    private static final String PORT = "8000";
+    private static final Logger LOGGER = LoggerFactory.getLogger(PingServer.class);
 
-    public void start() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
+    public void start(int serverPort) throws IOException {
+        LOGGER.info("Starting server on port: " + serverPort);
+        HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.createContext("/ping", new PingHandler());
         server.setExecutor(null); // creates a default executor
         server.start();
     }
 
     public static final void main(String[] args) throws IOException {
-        new PingServer().start();
+        int serverPort = Integer.parseInt(System.getProperty("server.port", PORT));
+        new PingServer().start(serverPort);
     }
 }
