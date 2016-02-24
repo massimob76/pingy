@@ -1,5 +1,6 @@
 package pingy.recorder;
 
+import com.google.inject.Inject;
 import pingy.TimeProvider;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ public class Recorder {
 
     private final TimeProvider timeProvider;
 
+    @Inject
     public Recorder(TimeProvider timeProvider) {
         this.timeProvider = timeProvider;
     }
