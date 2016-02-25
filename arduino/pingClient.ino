@@ -27,7 +27,7 @@ boolean wasLow = false;
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
-  
+
   pinMode(pirPin, INPUT);
   pinMode(ledPin, OUTPUT);
 
@@ -42,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-  
+
   if(digitalRead(pirPin) == HIGH) {
     Serial.println("high");
     if (wasLow) {
@@ -57,13 +57,13 @@ void loop() {
     Serial.println("low");
 
   }
-    
+
   delay(500);
 
 }
 
 void pingServer() {
-  
+
   Serial.println("connecting...");
 
   // if you get a connection, report back via serial:
@@ -74,16 +74,29 @@ void pingServer() {
     client.println("Host: pingy-server.herokuapp.com");
     client.println("Connection: close");
     client.println();
-    
-    while (!client.available()) ;
-    
-    Serial.println("disconnecting...");
-    
-    client.stop();
-    
+
+    int counter;
+    for (counter = 0; !client.available() && counter < 10; counter++) {
+      delay(100);
+    }
+
+    while (client.available()) {
+      char c = client.read();
+      Serial.print(c);
+    }
+
+    if (!client.connected()) {
+      Serial.println();
+      Serial.println("disconnecting.");
+      client.stop();
+    }
+
   } else {
     // if you didn't get a connection to the server:
     Serial.println("connection failed");
   }
-  
+
+  Serial.println("disconnecting...");
+  client.stop();
+
 }
