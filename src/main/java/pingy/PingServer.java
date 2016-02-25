@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pingy.handler.PingHandler;
+import pingy.handler.StaticHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,16 +17,19 @@ public class PingServer {
     private static final String PORT = "8000";
     private static final Logger LOGGER = LoggerFactory.getLogger(PingServer.class);
     private final PingHandler pingHandler;
+    private final StaticHandler staticHandler;
 
     @Inject
-    public PingServer(PingHandler pingHandler) {
+    public PingServer(PingHandler pingHandler, StaticHandler staticHandler) {
         this.pingHandler = pingHandler;
+        this.staticHandler = staticHandler;
     }
 
     public void start(int serverPort) throws IOException {
         LOGGER.info("Starting server on port: " + serverPort);
         HttpServer server = HttpServer.create(new InetSocketAddress(serverPort), 0);
         server.createContext("/ping", pingHandler);
+        server.createContext("/ping.html", staticHandler);
         server.setExecutor(null); // creates a default executor
         server.start();
     }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en-US" ng-app="myApp">
+
+<head>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+</head>
+
+<body ng-controller="myCtrl">
+
+	<br/><br/>
+	<div class="alert" ng-class="{'alert-success' : !isBusy, 'alert-danger': isBusy}" style="min-height: 200px; min-width: 100px; text-align: center; vertical-align: middle; font-size: 25px;" role="alert">
+		{{text}}
+	</div>
+
+	<script>
+	var app = angular.module('myApp', []);
+	app.controller('myCtrl', function($scope, $interval, $http) {
+
+		var getPings = function () {
+			$http({
+  				method: 'GET',
+  				url: '/ping?durationBack=120000&pingThreshold=5', 
+  				headers: {
+   					'Content-Type': 'application/json'
+ 				}
+			}).then(function successCallback(response) {
+    			$scope.isBusy = response.data.isBusy;
+				$scope.text = ($scope.isBusy ? "Busy! Back to work..." : "Free!!! Hurry up!!!");
+			}, function errorCallback(response) {
+				console.log('Failed!!!! ' + JSON.stringify(response));
+			});
+		};
+
+		getPings();
+	    $interval(getPings, 1 * 1000);
+	});
+	</script>
+
+</body>
+</html>

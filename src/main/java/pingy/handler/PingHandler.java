@@ -43,7 +43,7 @@ public class PingHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
         LOGGER.info("received something");
-
+        LOGGER.info(String.valueOf(httpExchange.getRequestURI()));
         switch (httpExchange.getRequestMethod()) {
             case "GET":
                 get(httpExchange);
