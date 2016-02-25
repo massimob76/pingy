@@ -94,9 +94,17 @@ void pingServer() {
   } else {
     // if you didn't get a connection to the server:
     Serial.println("connection failed");
+    resetEthernet();
   }
 
   Serial.println("disconnecting...");
   client.stop();
 
+}
+
+void resetEthernet() {
+ client.stop();
+ delay(1000);
+ Ethernet.begin(mac);
+ delay(1000);
 }
