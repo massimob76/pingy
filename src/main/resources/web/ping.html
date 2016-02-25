@@ -22,7 +22,7 @@
 		var getPings = function () {
 			$http({
   				method: 'GET',
-  				url: '/ping?durationBack=120000&pingThreshold=5', 
+  				url: '/ping?durationBack=60000&pingThreshold=2',
   				headers: {
    					'Content-Type': 'application/json'
  				}
