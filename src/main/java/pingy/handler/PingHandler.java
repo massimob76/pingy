@@ -5,7 +5,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pingy.recorder.Recorder;
+import pingy.service.PingService;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,19 +19,25 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static pingy.handler.HttpParams.DURATION_BACK;
+import static pingy.handler.HttpParams.PING_THRESHOLD;
 
 public class PingHandler implements HttpHandler {
+
+    private static final String DEFAULT_PING_THRESHOLD = "1";
+    private static final String DEFAULT_DURATION_BACK = "" + (1000 * 60 * 2);
 
     private static final int HTTP_OK = 200;
     private static final Logger LOGGER = LoggerFactory.getLogger(PingHandler.class);
     private static final String POST_RESPONSE = "Received!";
-    private final Recorder recorder;
+
+    private final PingService pingService;
 
     private static final Function<Long, String> TIME_FORMATTER = millis -> "\"" + new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date(millis)) + "\"";
 
     @Inject
-    public PingHandler(Recorder recorder) {
-        this.recorder = recorder;
+    public PingHandler(PingService pingService) {
+        this.pingService = pingService;
     }
 
     @Override
@@ -52,7 +58,7 @@ public class PingHandler implements HttpHandler {
 
     private void post(HttpExchange httpExchange) throws IOException {
         LOGGER.info("received ping!");
-        recorder.ping();
+        pingService.addPing();
         httpExchange.sendResponseHeaders(HTTP_OK, POST_RESPONSE.length());
         OutputStream os = httpExchange.getResponseBody();
         os.write(POST_RESPONSE.getBytes());
@@ -60,14 +66,22 @@ public class PingHandler implements HttpHandler {
     }
 
     private void get(HttpExchange httpExchange) throws IOException {
-        LOGGER.info("somehting");
         Map<String, String> parameters = queryToMap(httpExchange.getRequestURI().getQuery());
         LOGGER.info("received GET request with params: " + parameters);
-        List<String> pings = recorder.getAllPings().stream()
+
+        Long durationBack = Long.valueOf(parameters.getOrDefault(DURATION_BACK.getParamName(), DEFAULT_DURATION_BACK));
+        int pingThreshold = Integer.valueOf(parameters.getOrDefault(PING_THRESHOLD.getParamName(), DEFAULT_PING_THRESHOLD));
+
+        List<String> pings = pingService.getPings(durationBack).stream()
                 .map(TIME_FORMATTER)
                 .collect(toList());
 
-        String response = "{ \"pings\": " + pings.toString() + " }";
+        boolean isBusy = pings.size() >= pingThreshold;
+
+        String response = "{ \"pings\": " + pings.toString() +
+                ", \"isBusy\": " + isBusy + ", " +
+                "\"durationBack\": " + (durationBack / 1000) +
+        " }";
 
         httpExchange.sendResponseHeaders(HTTP_OK, response.length());
         OutputStream os = httpExchange.getResponseBody();
