@@ -1,4 +1,6 @@
-package pingy;
+package pingy.modules;
+
+import pingy.TimeProvider;
 
 import com.google.inject.AbstractModule;
 
