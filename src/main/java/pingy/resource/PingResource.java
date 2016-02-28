@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pingy.service.PingService;
+import pingy.transport.PingResponse;
 
 @Path("/ping")
 public class PingResource {
@@ -28,7 +29,7 @@ public class PingResource {
     private static final int DEFAULT_PING_THRESHOLD = 1;
     private static final long DEFAULT_DURATION_BACK = 1000 * 60 * 2;
     
-    private static final Function<Long, String> TIME_FORMATTER = millis -> "\"" + new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date(millis)) + "\"";
+    private static final Function<Long, String> TIME_FORMATTER = millis -> new SimpleDateFormat("yyyy.MM.dd HH:mm:ss").format(new Date(millis));
 
     private final PingService pingService;
 
@@ -46,7 +47,7 @@ public class PingResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public String getPings(@QueryParam("pingThreshold") Integer pingThresholdParam, 
+    public PingResponse getPings(@QueryParam("pingThreshold") Integer pingThresholdParam, 
                            @QueryParam("durationBack") Long durationBackParam) {
         LOGGER.info("Received GET request with pingThreshold {} and durationBack {}", pingThresholdParam, durationBackParam);
 
@@ -58,10 +59,7 @@ public class PingResource {
         int pingThreshold = pingThresholdParam != null ? pingThresholdParam : DEFAULT_PING_THRESHOLD;
         boolean isBusy = pings.size() >= pingThreshold;
 
-        return "{ \"pings\": " + pings.toString() +
-                ", \"isBusy\": " + isBusy + ", " +
-                "\"durationBack\": " + (durationBack / 1000) +
-        " }";
+        return new PingResponse(pings, isBusy, (durationBack / 1000));
     }
 
 }
