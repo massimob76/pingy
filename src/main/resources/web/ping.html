@@ -27,8 +27,7 @@
    					'Content-Type': 'application/json'
  				}
 			}).then(function successCallback(response) {
-				console.log(JSON.stringify(response));
-    			$scope.isBusy = response.data.isBusy;
+				$scope.isBusy = response.data.isBusy;
 				$scope.text = ($scope.isBusy ? "Busy! Back to work..." : "Free!!! Hurry up!!!");
 			}, function errorCallback(response) {
 				console.log('Failed!!!! ' + JSON.stringify(response));
