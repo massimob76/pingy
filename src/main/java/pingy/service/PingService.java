@@ -1,13 +1,14 @@
 package pingy.service;
 
-import pingy.TimeProvider;
-import pingy.recorder.Recorder;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+import pingy.TimeProvider;
+import pingy.recorder.Recorder;
 
 @Singleton
 public class PingService {
